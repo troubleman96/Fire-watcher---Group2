@@ -1,0 +1,643 @@
+{
+	"info": {
+		"_postman_id": "fire-api-collection-2026",
+		"name": "Fire Watcher API",
+		"description": "Complete API collection for Fire Watcher Backend with automatic JWT token management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save tokens to environment variables",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.tokens.access);",
+									"    pm.environment.set(\"refresh_token\", jsonData.tokens.refresh);",
+									"    pm.environment.set(\"user_id\", jsonData.user.id);",
+									"    console.log(\"✅ Tokens saved! Access token:\", jsonData.tokens.access.substring(0, 20) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"name\": \"John Doe\",\n  \"phone\": \"+1234567890\",\n  \"password\": \"securepass123\",\n  \"password_confirm\": \"securepass123\",\n  \"user_type\": \"public\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "Register a new user account. Automatically saves JWT tokens to environment."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save tokens to environment variables",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.tokens.access);",
+									"    pm.environment.set(\"refresh_token\", jsonData.tokens.refresh);",
+									"    pm.environment.set(\"user_id\", jsonData.user.id);",
+									"    pm.environment.set(\"user_email\", jsonData.user.email);",
+									"    pm.environment.set(\"user_type\", jsonData.user.user_type);",
+									"    console.log(\"✅ Login successful! User:\", jsonData.user.email);",
+									"    console.log(\"✅ Tokens saved! Access token:\", jsonData.tokens.access.substring(0, 20) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securepass123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "Login with email and password. Automatically saves JWT tokens to environment."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/me/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me",
+								""
+							]
+						},
+						"description": "Get current authenticated user's information. Uses saved access token."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe Updated\",\n  \"phone\": \"+9876543210\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/me/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me",
+								""
+							]
+						},
+						"description": "Update current user's profile information."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save new access token",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.access);",
+									"    console.log(\"✅ Token refreshed! New access token:\", jsonData.access.substring(0, 20) + \"...\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/token/refresh/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"token",
+								"refresh",
+								""
+							]
+						},
+						"description": "Refresh access token using refresh token. Automatically updates access token."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Clear tokens from environment",
+									"if (pm.response.code === 205) {",
+									"    pm.environment.unset(\"access_token\");",
+									"    pm.environment.unset(\"refresh_token\");",
+									"    pm.environment.unset(\"user_id\");",
+									"    pm.environment.unset(\"user_email\");",
+									"    pm.environment.unset(\"user_type\");",
+									"    console.log(\"✅ Logged out! Tokens cleared.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout",
+								""
+							]
+						},
+						"description": "Logout and blacklist refresh token. Clears tokens from environment."
+					},
+					"response": []
+				},
+				{
+					"name": "Register Fire Team Member",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save tokens to environment variables",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.tokens.access);",
+									"    pm.environment.set(\"refresh_token\", jsonData.tokens.refresh);",
+									"    pm.environment.set(\"user_id\", jsonData.user.id);",
+									"    console.log(\"✅ Fire Team Member registered! Tokens saved.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"fireteam@example.com\",\n  \"name\": \"Fire Team Alpha\",\n  \"phone\": \"+1234567890\",\n  \"password\": \"securepass123\",\n  \"password_confirm\": \"securepass123\",\n  \"user_type\": \"fire_team\",\n  \"badge_number\": \"FT001\",\n  \"fire_station\": \"Station 1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "Register a fire team member with badge number and station."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints with automatic JWT token management"
+		},
+		{
+			"name": "Incidents",
+			"item": [
+				{
+					"name": "List Incidents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/incidents/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"incidents",
+								""
+							]
+						},
+						"description": "List all incidents. Fire team sees all, public users see only their own."
+					},
+					"response": []
+				},
+				{
+					"name": "List Incidents - Filter by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/incidents/?status=new",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"incidents",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "new",
+									"description": "Filter by status: new, enroute, arrived, fighting, extinguished, closed"
+								}
+							]
+						},
+						"description": "List incidents filtered by status"
+					},
+					"response": []
+				},
+				{
+					"name": "List Incidents - Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/incidents/?search=fire",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"incidents",
+								""
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "fire",
+									"description": "Search in address, description, reporter_name"
+								}
+							]
+						},
+						"description": "Search incidents by keyword"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Incident (JSON)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save incident ID for later use",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"incident_id\", jsonData.id);",
+									"    console.log(\"✅ Incident created! ID:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lat\": 40.7128,\n  \"lng\": -74.0060,\n  \"address\": \"123 Main St, New York, NY\",\n  \"description\": \"Fire in building, smoke visible from street\",\n  \"reporter_name\": \"John Doe\",\n  \"reporter_phone\": \"+1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/incidents/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"incidents",
+								""
+							]
+						},
+						"description": "Report a new fire incident (JSON format, no photos)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Incident (with Photos)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save incident ID for later use",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"incident_id\", jsonData.id);",
+									"    console.log(\"✅ Incident created with photos! ID:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "lat",
+									"value": "40.7128",
+									"type": "text"
+								},
+								{
+									"key": "lng",
+									"value": "-74.0060",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "456 Oak Ave, New York, NY",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Large fire with heavy smoke",
+									"type": "text"
+								},
+								{
+									"key": "reporter_name",
+									"value": "Jane Smith",
+									"type": "text"
+								},
+								{
+									"key": "reporter_phone",
+									"value": "+1234567890",
+									"type": "text"
+								},
+								{
+									"key": "photos",
+									"type": "file",
+									"src": [],
+									"disabled": true,
+									"description": "Upload photo files here"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/incidents/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"incidents",
+								""
+							]
+						},
+						"description": "Report incident with photo uploads (multipart/form-data). Enable and select files for 'photos' field."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Incident Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/incidents/{{incident_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"incidents",
+								"{{incident_id}}",
+								""
+							]
+						},
+						"description": "Get detailed information about a specific incident"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Incident Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"fighting\",\n  \"notes\": \"Team Alpha on scene, engaging fire\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/incidents/{{incident_id}}/status/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"incidents",
+								"{{incident_id}}",
+								"status",
+								""
+							]
+						},
+						"description": "Update incident status (Fire Team only). Status options: new, enroute, arrived, fighting, extinguished, closed"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Status History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/incidents/{{incident_id}}/updates/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"incidents",
+								"{{incident_id}}",
+								"updates",
+								""
+							]
+						},
+						"description": "Get complete status update history for an incident"
+					},
+					"response": []
+				}
+			],
+			"description": "Fire incident management endpoints"
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/dashboard/stats/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"stats",
+								""
+							]
+						},
+						"description": "Get dashboard statistics (Fire Team only). Returns counts for new, active, resolved, and total incidents."
+					},
+					"response": []
+				}
+			],
+			"description": "Dashboard statistics for fire team"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}
