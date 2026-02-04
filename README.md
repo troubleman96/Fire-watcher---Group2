@@ -256,8 +256,9 @@ Before deploying to production:
 
 ## License
 
-[Your License Here]
+[camelTech]
 
 ## Contributors
 
-[Your Team Information]
+[Group 2 - IT
+"dev-medy, Abas, camel"]
