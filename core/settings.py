@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',  # Django REST Framework for API
     'rest_framework_simplejwt',  # JWT authentication
+    'rest_framework_simplejwt.token_blacklist',  # JWT token blacklist
     'corsheaders',  # CORS headers for frontend integration
     
     # Custom apps - organized in apps/ directory
